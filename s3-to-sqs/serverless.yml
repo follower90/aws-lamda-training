@@ -1,0 +1,36 @@
+service: vitaliy-sls-test-proj2
+frameworkVersion: '2'
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource: "*"
+functions:
+  file_handler:
+    handler: handler.file_handler
+    events:
+      - s3:
+          bucket: vitaliy-my-csvs-to-sqs
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .csv
+          existing: true
+resources:
+  Resources:
+    dataQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: dataQueue
+    myBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: vitaliy-my-csvs-to-sqs

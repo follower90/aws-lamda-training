@@ -1,0 +1,61 @@
+service: vitaliy-sls-test-proj1
+frameworkVersion: '2'
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:858738807917:table/usersTable"
+functions:
+  get_users:
+    handler: handler.get_users
+    events:
+      - http:
+          path: users
+          method: get
+  get_user:
+    handler: handler.get_user
+    events:
+      - http:
+          path: users/{id}
+          method: get
+  create_user:
+    handler: handler.create_user
+    events:
+      - http:
+          path: users
+          method: post
+  delete_user:
+    handler: handler.delete_user
+    events:
+      - http:
+          path: users/{id}
+          method: delete
+package:
+  exclude:
+    -./**
+  include:
+    -node_modules/**
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: usersTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
