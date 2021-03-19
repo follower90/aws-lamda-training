@@ -7,8 +7,6 @@ AWS.config.update({region: 'us-east-1'});
 const s3 = new AWS.S3();
 const sqs = new AWS.SQS();
 
-const SQS_URL = "https://sqs.us-east-1.amazonaws.com/858738807917/dataQueue";
-
 module.exports.file_handler = async (event, context) => {
 
     await Promise.all(event.Records.map(async (record) => {
@@ -22,7 +20,7 @@ module.exports.file_handler = async (event, context) => {
 
       await sqs.sendMessage({
           MessageBody: data.Body.toString('utf-8'),
-          QueueUrl: SQS_URL,
+          QueueUrl: process.env.SQS_QUEUE_URL,
       }).promise();
 
     } catch(err) {

@@ -5,6 +5,9 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: us-east-1
+  environment:
+    SQS_QUEUE_URL: { Ref: dataQueue }
+    BUCKET_NAME: vitaliy-my-csvs-to-sqs
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -19,7 +22,7 @@ functions:
     handler: handler.file_handler
     events:
       - s3:
-          bucket: vitaliy-my-csvs-to-sqs
+          bucket: ${self:provider.environment.BUCKET_NAME}
           event: s3:ObjectCreated:*
           rules:
             - suffix: .csv
@@ -33,4 +36,4 @@ resources:
     myBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: vitaliy-my-csvs-to-sqs
+        BucketName: ${self:provider.environment.BUCKET_NAME}
